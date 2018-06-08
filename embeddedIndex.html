@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <title>Embedded SAIL Demo</title>
+    <base href="/">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script src="https://ps-sandbox1.appiancloud.com/suite/tempo/ui/sail-client/embeddedBootstrap.nocache.js"
+            id="appianEmbedded"></script>
+
+    <script>
+      //Replace with relevant task report URL stub
+      const reportURLStub = '-OmqXw';
+
+      window.onload = function () {
+
+        var reportInsertDiv = document.getElementById('reportInsertPoint');
+        var newReport = document.createElement("appian-report");
+        newReport.setAttribute("reportUrlStub", reportURLStub);
+        newReport.setAttribute("id", "embeddedTaskReport");
+        reportInsertDiv.appendChild(newReport);
+
+        document.getElementById("embeddedTaskReport")
+          .addEventListener(
+            "open-task-link",
+            (event) => {taskLinkClicked(event);},
+            false
+          );
+      }
+
+      function taskLinkClicked(event) {
+
+        event.preventDefault();
+
+        console.log("The task link has been clicked! "
+          + event.detail.taskId
+        );
+
+        // var reportInsertDiv = document.getElementById('reportInsertPoint');
+        // var reportChild = document.getElementById('reportInsertPoint').children[0];
+        // var newReport = document.createElement("p");
+        // reportInsertDiv.replaceChild(newReport, reportChild);
+
+        var taskInsertDiv = document.getElementById('taskInsertPoint');
+        var taskChild = document.getElementById('taskInsertPoint').children[0];
+        var newTask = document.createElement('appian-task');
+        newTask.setAttribute("taskId", event.detail.taskId);
+        newTask.addEventListener("submit", handleSubmit, false);
+        taskInsertDiv.replaceChild(newTask, taskChild);
+
+      }
+
+      function handleSubmit() {
+
+        var insertDiv = document.getElementById('taskInsertPoint');
+        var child = document.getElementById('taskInsertPoint').children[0];
+        var paragraph = document.createElement("p");
+        insertDiv.replaceChild(paragraph, child);
+
+        var reportInsertDiv = document.getElementById('reportInsertPoint');
+        var reportChild = document.getElementById('reportInsertPoint').children[0];
+        var newReport = document.createElement("appian-report");
+        newReport.setAttribute("reportUrlStub", reportURLStub);
+        newReport.setAttribute("id", "embeddedTaskReport");
+        reportInsertDiv.replaceChild(newReport, reportChild);
+
+        document.getElementById("embeddedTaskReport")
+          .addEventListener(
+            "open-task-link",
+            (event) => {taskLinkClicked(event);},
+            false
+          );
+      }
+
+    </script>
+
+  </head>
+  <body>
+
+    <div id="reportInsertPoint"></div>
+    <div id="taskInsertPoint">
+      <div id="taskInsertPointChild"/>
+    </div>
+
+  </body>
+</html>
