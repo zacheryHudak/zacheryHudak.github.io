@@ -4,9 +4,16 @@
 		<meta charset='utf-8'>
 	</head>
 	<script type='text/javascript'>
+		
+		var el = window.parent.document.getElementById('helloThere');
+      if (el) el.onload = () => {
+        if(!window.parent.updatedIFrame) {
+          el.setAttribute('sandbox', 'allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-activation');
+          el.contentWindow.location.reload();
+          window.parent.updatedIFrame = true;
+        }
+      }
 		function receiveMessage() {
-        var doc = window.parent.document.getElementById('helloThere');
-        doc.setAttribute('sandbox', 'allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-activation');
         window.parent.location.href = 'https://zacheryhudak.github.io/indexEmbedded.html';
 			}
 		
