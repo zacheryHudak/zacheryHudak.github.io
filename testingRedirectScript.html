@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head> 
+		<meta charset='utf-8'>
+	</head>
+	<script type='text/javascript'>
+		
+		var el = window.parent.document.getElementById('helloThere');
+      if (el) el.onload = () => {
+        if(!window.parent.updatedIFrame) {
+          el.setAttribute('sandbox', 'allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-activation');
+          el.contentWindow.location.reload();
+          window.parent.updatedIFrame = true;
+        }
+      }
+		function receiveMessage() {
+		
+		var xhs = new XMLHttpRequest();
+		xhs.open("GET", "https://vanguardtest.appiancloud.com/suite/webapi/rco-case?14", true);
+        xhs.send();
+        var url = xhs.getResponseHeader("Location");
+        console.log(url);
+        var allResponseHeaders = xhs.getAllResponseHeaders();
+        console.log(allResponseHeaders);
+        var responseText = xhs.responseText;
+        console.log(responseText);
+        window.parent.location.href = url;
+			}
+		
+	</script> 
+	<body> 	
+		<button style='background-color:#96151D;width:150px;height:40px;color:white' onclick='receiveMessage()'>Process</button>
+	</body> 
+</html>
