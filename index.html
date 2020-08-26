@@ -36,17 +36,6 @@
 	}
     });
 
-    window.top.addEventListener(
-        'message',
-        function (event) {
-            console.log('First Message received: ' + event.data);
-            if (!validHelmOrigins.has(event.origin) || event.data.name !== 'Helm') {
-                return;
-            }
-            receiveMessage(event);
-        }
-    );
-
     var iframeElements = window.parent.document.getElementsByTagName("iframe");
     var classElements = window.parent.document.getElementsByClassName(redirectClass);
     var originFrame;
