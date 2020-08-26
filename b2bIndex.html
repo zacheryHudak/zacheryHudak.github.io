@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='utf-8'>
+</head>
+<script src='https://cs-sandbox1.appiancloud.com/suite/tempo/ui/sail-client/api_v2.2.0-03fb7793e1d17441718e.cache.js'></script>
+<script type='text/javascript'>
+    var reverseB2BProcess;
+    var lockProcess;
+    var caseId;
+    var buttonParameters;
+    var buttonLabels;
+    var vho;
+    var redirectClass;
+    var refreshOnResponse;
+    var hideOnClick;
+    var buttonParametersClean = new Set();
+
+    // Handle a new user input location from SAIL.
+    Appian.Component.onNewValue(function (newValues) {
+        reverseB2BProcess = newValues.reverseB2BProcess;
+        lockProcess = newValues.lockProcess;
+        caseId = newValues.caseId;
+        buttonParameters = newValues.buttonParameters;
+        buttonLabels = newValues.buttonLabels;
+        vho = newValues.validHelmOrigins;
+	redirectClass = newValues.redirectClass;
+	refreshOnResponse = newValues.refreshOnResponse;
+	hideOnClick = newValues.hideOnClick;
+	
+	//Loop through array of strings and JSON.parse
+	for (var i=0; i<buttonParameters.length; i++) {
+	  var obj = JSON.parse(buttonParameters[i]);
+	  buttonParametersClean.add(obj);
+	}
+    });
+
+    window.top.addEventListener(
+        'message',
+        function (event) {
+            console.log('First Message received: ' + event.data);
+            if (!validHelmOrigins.has(event.origin) || event.data.name !== 'Helm') {
+                return;
+            }
+            receiveMessage(event);
+        }
+    );
+
+    var iframeElements = window.parent.document.getElementsByTagName("iframe");
+    var classElements = window.parent.document.getElementsByClassName(redirectClass);
+    var originFrame;
+    for (let i = 0; i<iframeElements.length; i++){
+        for (let j = 0; j<classElements.length; j++){
+            if(iframeElements[i].id==classElements[j].id) {originFrame= iframeElements[i];}
+        }
+    }
+   
+    if (originFrame) originFrame.onload = () => {
+       if(!window.parent.updatedIFrame) {
+           originFrame.setAttribute('sandbox', 'allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-activation');
+           originFrame.contentWindow.location.reload();
+           window.parent.updatedIFrame = true;
+       }
+    }
+
+    var helmMessageAPI = {};
+    var currWindow;
+
+    var validHelmOrigins = new Set();
+    for (var v = 0; v < vho.length; v++) {
+        validHelmOrigins.add(vho[v]);
+    }
+
+    function getHelmWindow() {
+        var helmWindow;
+        try {
+            helmWindow = parent.window.opener;
+            if (helmWindow.location.href === 'about:blank') {
+                helmWindow = null;
+            }
+        } catch (ex) {
+            console.log('Exception encountered while check the window href, it is most likely the Helm');
+        }
+        return helmWindow;
+    }
+
+    function SendMessage(i) {
+
+        try {
+            var helmWindow = getHelmWindow();
+	    var arr = Array.from(buttonParametersClean);
+            var msg = arr[i];
+            console.log('Message: ', msg);
+            if (helmWindow != null) {
+                var data = JSON.stringify({
+                    'caseId': +caseId
+                });
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', lockProcess, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(data);
+                validHelmOrigins.forEach(
+                    function (origin) {
+                        console.log(origin);
+                        helmWindow.postMessage(msg, origin);
+                    }
+                );
+                if( hideOnClick == true) {
+                    var HTMLbuttons = document.getElementsByClassName("HTMLB2BButton");
+                    for (let i = 0; i<HTMLbuttons.length; i++){
+                        HTMLbuttons[i].remove();
+                    }  
+                }
+            } else {
+                console.log('Helm window not found');
+            }
+        } catch (ex) {
+            console.log(ex);
+            throw 'The Helm was not found, launch your app through the Helm to allow messaging';
+        }
+    }
+
+    function receiveMessage(event) {
+        console.log('Message received: ' + event.data);
+
+        var objectKey = event.data.data.workObjectId;
+        var msgType = event.data.msgType;
+
+        console.log('Object Key: ' + objectKey);
+        console.log('Message Type: ' + msgType);
+
+        if (objectKey != null && msgType != null) {
+            var data = JSON.stringify({
+                'objectKey': objectKey,
+                'msgType': msgType
+            });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', reverseB2BProcess, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(data);
+
+            if (refreshOnResponse == true) {
+                window.parent.location.href = window.parent.location.href;
+            }
+        }
+    }
+
+    helmMessageAPI.init = function (clientWindow) {
+        currWindow = clientWindow;
+    };
+
+    document.write('<body>');
+    for (var i = 0; i < buttonLabels.length; i++) {
+        document.write("<button style='background-color:#96151D;width:150px;height:40px;color:white' onclick='SendMessage(" + i + ")' class='HTMLB2BButton'>" + buttonLabels[i] + "</button>");
+        document.write("<br><br>");
+    }
+</script>
+</body>
+
+</html>
