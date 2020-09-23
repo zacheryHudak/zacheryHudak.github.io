@@ -7,13 +7,35 @@
 <script type='text/javascript'>
 
 var childWindow;
+var iframeWindow;
 
 function openWindow() {
         childWindow = window.open("https://zacheryhudak.github.io/index4.html");
     }
     
+window.addEventListener("message", (event) => {
+  // Do we trust the sender of this message?  (might be
+  // different from what we originally opened, for example).
+  if (event.origin !== childWindow){
+    document.write("<button style='background-color:#96151D;width:150px;height:40px;color:white' class='HTMLB2BButton'>" + "Not the parent Window!" + "</button>");
+    iframeWindow = event.source;
+  }
+  // event.source is popup
+  // event.data is "hi there yourself!  the secret response is: rheeeeet!"
+    {
+        document.write("<button style='background-color:#96151D;width:150px;height:40px;color:white' class='HTMLB2BButton'>" + "The parent Window!" + "</button>");
+        iframeWindow = event.source;
+    }
+}, false);
+    
+function sendMessage() {
+    iframeWindow.postMessage("hello there!");
+}
+    
+    
 </script>
-<button type="button" onclick="openWindow()">Click Me!</button>
+<button type="button" onclick="openWindow()">Open Window</button>
+<button type="button" onclick="sendMessage()">Send Message</button> 
 </body>
 
 </html>
