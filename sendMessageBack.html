@@ -22,11 +22,12 @@
   document.write("<button style='background-color:#96151D;width:150px;height:40px;color:white' class='HTMLB2BButton'>" + "The parent Window!" + "</button>");
 }, false);
 
-		function receiveMessage() {
+		function sendMessage() {
+			parentWindow.postMessage("hello there!");
 			}
 		
 	</script> 
 	<body> 	
-		<button style='background-color:#96151D;width:150px;height:40px;color:white' onclick='receiveMessage()'>Process</button>
+		<button style='background-color:#96151D;width:150px;height:40px;color:white' onclick='sendMessage()'>Process</button>
 	</body> 
 </html>
