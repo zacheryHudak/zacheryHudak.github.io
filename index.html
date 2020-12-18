@@ -11,8 +11,12 @@ function SendMessage(j) {
     }
 	
     document.write('<body>');
-    document.write("<button style='background-color:" + buttonBackgroundColor + ";width:150px;height:40px;color:white' onclick='" + if (disableOnClick) {"this.disabled=true;this.style.backgroundColor='gray';"} else {""} + "SendMessage(" + i + ")'>" + buttonLabel + "</button>");
+    
+		if (disableOnClick) {
+        document.write("<button style='background-color:" + buttonBackgroundColor + ";width:150px;height:40px;color:white' onclick='this.disabled=true;this.style.backgroundColor='gray';SendMessage(" + i + ")'>" + buttonLabels[i] + "</button>");} else {
+		document.write("<button style='background-color:" + buttonBackgroundColor + ";width:150px;height:40px;color:white' onclick='SendMessage(" + i + ")'>" + buttonLabel + "</button>"); }
         document.write("<br><br>");
+    
 </script>
 
 </html>
